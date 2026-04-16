@@ -7,6 +7,7 @@
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen?logo=node.js)](https://nodejs.org)
 [![MUI v6](https://img.shields.io/badge/MUI-v6-007FFF?logo=mui)](https://mui.com)
 [![Expo](https://img.shields.io/badge/Expo-SDK_51-000020?logo=expo)](https://expo.dev)
+[![npm](https://img.shields.io/npm/v/playlist-system?logo=npm)](https://www.npmjs.com/package/playlist-system)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Instead of styling HTML from scratch, Claude uses MUI/Paper with theme tokens.<br>
@@ -24,10 +25,10 @@ Works in **Claude Code**, **Cursor**, **Windsurf**, **Codex** — any environmen
 
 ```bash
 # Current project (installs in .claude/skills/)
-npx playlist-system install
+npx playlist-system@latest install
 
 # Global — available in all projects
-npx playlist-system install --global
+npx playlist-system@latest install --global
 ```
 
 Then just open Claude and ask for a prototype. The skill activates automatically on UI tasks.
@@ -38,7 +39,7 @@ Then just open Claude and ask for a prototype. The skill activates automatically
 <summary>Via git clone (no npx)</summary>
 
 ```bash
-git clone https://github.com/<your-username>/playlist-system.git .claude/skills/playlist-system
+git clone https://github.com/luannsilva/playlist-system.git .claude/skills/playlist-system
 ```
 
 </details>
@@ -46,7 +47,7 @@ git clone https://github.com/<your-username>/playlist-system.git .claude/skills/
 <details>
 <summary>On Cowork (desktop)</summary>
 
-Download the `.skill` from [releases](https://github.com/<your-username>/playlist-system/releases) and open — Cowork registers it automatically.
+Download the `.skill` from [releases](https://github.com/luannsilva/playlist-system/releases) and open — Cowork registers it automatically.
 
 </details>
 
@@ -54,10 +55,20 @@ Download the `.skill` from [releases](https://github.com/<your-username>/playlis
 <summary>As npm dependency (to import tokens/adapters in code)</summary>
 
 ```bash
-npm install github:<your-username>/playlist-system
+npm install playlist-system
 ```
 
 </details>
+
+### Updating
+
+Already installed and want the latest version? Just run the install command again:
+
+```bash
+npx playlist-system@latest install
+```
+
+The `@latest` flag ensures npm fetches the newest release instead of a cached version.
 
 ---
 
@@ -188,7 +199,7 @@ Open `preview/demo-preview.html` in your browser — toggle between the two them
 ## CLI
 
 ```
-npx playlist-system <command>
+npx playlist-system@latest <command>
 
 Commands:
   install              Install skill in .claude/skills/ of the project
