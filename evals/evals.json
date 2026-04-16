@@ -1,0 +1,55 @@
+{
+  "skill_name": "playlist-system",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "bootstrap-web-dashboard",
+      "prompt": "I'm starting a new prototype for a CRM that I'll present tomorrow. I want something web-based, a dashboard with KPIs at the top and a customer list. Can we use the playlist theme (that vibrant indigo)? Create it for me",
+      "expected_output": "Skill triggers in bootstrap mode, copies web-vite template, runs scaffold with --theme playlist, produces working Vite + MUI v6 project with ThemeProvider wrapping App, DM Sans fonts loaded via @fontsource, App.demo.tsx with KPI row using Card/Chip/Typography from MUI, customer list using Table or List from MUI. Should NOT contain hardcoded colors/fonts, should use tokens via sx prop. PROTOTYPE.md should be created at project root.",
+      "assertions": [
+        {"text": "theme.ts exists and imports playlistTheme from playlist-system/adapters/web/playlist.theme"},
+        {"text": "main.tsx wraps App in <ThemeProvider theme={theme}> and <CssBaseline />"},
+        {"text": "package.json includes @mui/material, @emotion/react, @emotion/styled, and playlist-system"},
+        {"text": "PROTOTYPE.md exists at the project root and mentions playlist theme"},
+        {"text": "No hardcoded hex colors (e.g. #4F46E5) in the produced tsx files other than theme.ts/theme imports"},
+        {"text": "At least one Card, one Chip, one Typography, and one Button imported from @mui/material appear in App.demo.tsx or main screen"},
+        {"text": "No raw <button>, <div> styled as card, or <input> used in place of MUI components"}
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "silent-mode-add-component",
+      "prompt": "add a button that opens a dialog to export the customer list as CSV. put it in the top right of the dashboard next to the user avatar",
+      "expected_output": "Skill detects the project is already adopted (PROTOTYPE.md + theme.ts + package.json markers present), enters silent mode WITHOUT asking if user wants to adopt the skill, adds an IconButton or Button using MUI imports, opens a Dialog with MUI DialogTitle/DialogContent/DialogActions, uses tokens via sx (not hardcoded), and delivers a brief one-line note about what was used. Should NOT re-ask about theme or try to bootstrap a new project.",
+      "assertions": [
+        {"text": "No AskUserQuestion or interactive question about adopting playlist-system was issued"},
+        {"text": "Button or IconButton is imported from @mui/material"},
+        {"text": "Dialog, DialogTitle, DialogContent, DialogActions are imported from @mui/material"},
+        {"text": "No hardcoded colors/spacings appear in the new code — spacings use theme.spacing or sx numeric shorthand"},
+        {"text": "The component is placed near the existing avatar in the AppBar/Toolbar, not in a new separate region"},
+        {"text": "Response includes a brief mention of what MUI primitives were used (e.g., 'Usei IconButton + Dialog do MUI')"}
+      ],
+      "files": [
+        "fixtures/silent-mode-project/"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "audit-fix-hardcoded-styles",
+      "prompt": "the screen I made doesn't follow the design system standard, can you review and adjust it? I want it to use the playlist theme",
+      "expected_output": "Skill detects the project is marked (PROTOTYPE.md exists), enters audit/fix mode, scans the file for violations (hardcoded colors, raw <button>/<div>, manual padding in px, missing ThemeProvider if top-level), applies fixes directly without asking for per-item approval, and returns a summary of what was changed per-file. Should NOT just report violations — should actually fix them.",
+      "assertions": [
+        {"text": "All hardcoded hex colors in the broken file are replaced with theme.palette.* references or MUI color prop values"},
+        {"text": "Raw <button className='...'> is replaced with <Button> from @mui/material"},
+        {"text": "Raw <div> used as card is replaced with <Card> or <Paper> from @mui/material"},
+        {"text": "Padding and margin values in 'px' strings are replaced with sx shorthand (numeric spacing units)"},
+        {"text": "Response contains a per-file summary of changes (not just a diff — actual explanation of what was replaced)"},
+        {"text": "No new AskUserQuestion is issued for simple per-violation decisions — the agent applies fixes directly"}
+      ],
+      "files": [
+        "fixtures/broken-screen/BrokenDashboard.tsx"
+      ]
+    }
+  ]
+}

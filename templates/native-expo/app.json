@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "playlist-system-native-prototype",
+    "slug": "playlist-system-native-prototype",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#FFFFFF"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": true },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": { "bundler": "metro" }
+  }
+}

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>playlist-system — visual preview of themes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Albert+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    html, body { margin: 0; padding: 0; min-height: 100%; }
+    #root { min-height: 100vh; }
+    #loading {
+      position: fixed; inset: 0; display: grid; place-items: center;
+      font: 14px/1.5 -apple-system, system-ui, sans-serif; color: #64748B;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">loading preview…</div>
+  <div id="root"></div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "react":             "https://esm.sh/react@18.3.1",
+        "react-dom/client":  "https://esm.sh/react-dom@18.3.1/client?deps=react@18.3.1",
+        "@mui/material":     "https://esm.sh/@mui/material@6.1.0?deps=react@18.3.1,react-dom@18.3.1",
+        "@mui/material/":    "https://esm.sh/@mui/material@6.1.0&deps=react@18.3.1,react-dom@18.3.1/",
+        "@emotion/react":    "https://esm.sh/@emotion/react@11.13.0?deps=react@18.3.1",
+        "@emotion/styled":   "https://esm.sh/@emotion/styled@11.13.0?deps=react@18.3.1,@emotion/react@11.13.0",
+        "htm":               "https://esm.sh/htm@3.1.1"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import React, { useState } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import {
+      ThemeProvider, CssBaseline,
+      AppBar, Toolbar, Typography, IconButton, Avatar,
+      Container, Box, Stack, Card, CardContent, Chip, Button, TextField, Divider,
+    } from '@mui/material';
+    import { createTheme } from '@mui/material/styles';
+    import htm from 'htm';
+
+    const html = htm.bind(React.createElement);
+
+    // ---- tokens (duplicated from real project, only for standalone preview) ----
+
+    const playlistTokens = {
+      palette: {
+        primary:   { main: '#4F46E5', light: '#EEF2FF', dark: '#4338CA', contrastText: '#FFFFFF' },
+        secondary: { main: '#4F46E5', light: '#EEF2FF', dark: '#4338CA', contrastText: '#FFFFFF' },
+        background:{ default: '#F5F6F8', paper: '#FFFFFF' },
+        text:      { primary: '#0F172A', secondary: '#64748B', disabled: '#94A3B8' },
+        divider:   '#E5E7EB',
+        success:   { main: '#10B981', light: '#D1FAE5', dark: '#059669', contrastText: '#FFFFFF' },
+        error:     { main: '#B91C1C', light: '#FEE2E2', dark: '#991B1B', contrastText: '#FFFFFF' },
+        warning:   { main: '#F59E0B', light: '#FEF3C7', dark: '#D97706', contrastText: '#FFFFFF' },
+        info:      { main: '#4F46E5', light: '#EEF2FF', dark: '#4338CA', contrastText: '#FFFFFF' },
+      },
+      fontFamily: '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    };
+
+    const smartdeskTokens = {
+      palette: {
+        primary:   { main: '#0A0A0A', light: '#F5F5F5', dark: '#000000', contrastText: '#FFFFFF' },
+        secondary: { main: '#0A0A0A', light: '#F5F5F5', dark: '#000000', contrastText: '#FFFFFF' },
+        background:{ default: '#FAFAFA', paper: '#FFFFFF' },
+        text:      { primary: '#0A0A0A', secondary: '#6B7280', disabled: '#9CA3AF' },
+        divider:   '#E5E5E5',
+        success:   { main: '#059669', light: '#D1FAE5', dark: '#047857', contrastText: '#FFFFFF' },
+        error:     { main: '#DC2626', light: '#FEE2E2', dark: '#B91C1C', contrastText: '#FFFFFF' },
+        warning:   { main: '#D97706', light: '#FEF3C7', dark: '#B45309', contrastText: '#FFFFFF' },
+        info:      { main: '#0A0A0A', light: '#F5F5F5', dark: '#000000', contrastText: '#FFFFFF' },
+      },
+      fontFamily: '"Albert Sans", -apple-system, BlinkMacSystemFont, sans-serif',
+    };
+
+    const BASE = 16;
+    const scale = {
+      h1:      { s: 48, lh: 1.2,  w: 700, ls: -0.5 },
+      h2:      { s: 36, lh: 1.25, w: 700, ls: -0.25 },
+      h3:      { s: 28, lh: 1.3,  w: 600, ls: 0 },
+      h4:      { s: 22, lh: 1.35, w: 600, ls: 0 },
+      h5:      { s: 18, lh: 1.4,  w: 600, ls: 0 },
+      h6:      { s: 16, lh: 1.4,  w: 600, ls: 0 },
+      body1:   { s: 15, lh: 1.5,  w: 400, ls: 0 },
+      body2:   { s: 14, lh: 1.5,  w: 400, ls: 0 },
+      button:  { s: 14, lh: 1.5,  w: 500, ls: 0, tt: 'none' },
+      caption: { s: 12, lh: 1.4,  w: 400, ls: 0 },
+    };
+
+    function buildTheme(tokens) {
+      const typography = {
+        fontFamily: tokens.fontFamily,
+        fontWeightRegular: 400, fontWeightMedium: 500, fontWeightBold: 700,
+      };
+      for (const [k, v] of Object.entries(scale)) {
+        typography[k] = {
+          fontSize: (v.s / BASE) + 'rem',
+          lineHeight: v.lh,
+          fontWeight: v.w,
+          letterSpacing: v.s ? (v.ls / v.s) + 'em' : 0,
+          ...(v.tt ? { textTransform: v.tt } : {}),
+        };
+      }
+      return createTheme({
+        // note: cssVariables is useful in the real app (SSR, devtools) but here
+        // in the preview it interferes with fontFamily swapping between themes — the var
+        // is injected in :root only once and doesn't update when ThemeProvider
+        // changes. Removed specifically in the preview.
+        palette: { mode: 'light', ...tokens.palette },
+        typography,
+        shape: { borderRadius: 8 },
+        components: {
+          MuiButton: {
+            styleOverrides: { root: { textTransform: 'none', boxShadow: 'none', fontWeight: 500 } },
+            defaultProps:   { disableElevation: true },
+          },
+          MuiCard: {
+            styleOverrides: { root: {
+              borderRadius: 12,
+              border: `1px solid ${tokens.palette.divider}`,
+              boxShadow: '0 1px 2px 0 rgba(15,23,42,0.04)',
+            }},
+            defaultProps: { elevation: 0 },
+          },
+          MuiChip: { styleOverrides: { root: { borderRadius: 999, fontWeight: 500 } } },
+          MuiAppBar: {
+            styleOverrides: { root: {
+              boxShadow: 'none',
+              borderBottom: `1px solid ${tokens.palette.divider}`,
+              backgroundColor: tokens.palette.background.paper,
+              color: tokens.palette.text.primary,
+            }},
+            defaultProps: { elevation: 0, color: 'default' },
+          },
+          MuiTextField: { defaultProps: { variant: 'outlined', size: 'small' } },
+          MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 8 } } },
+        },
+      });
+    }
+
+    const playlistTheme  = buildTheme(playlistTokens);
+    const smartdeskTheme = buildTheme(smartdeskTokens);
+
+    // ---- demo (mirror of App.demo.tsx from web-vite template) ----
+
+    const kpis = [
+      { label: 'Active customers', value: '1,284',  trend: '+12%', positive: true  },
+      { label: 'MRR',              value: '$48.2K', trend: '+8%',  positive: true  },
+      { label: 'Churn risk',       value: '23',     trend: '-4%',  positive: false },
+    ];
+
+    function DemoApp({ themeLabel }) {
+      return html`
+        <${Box} sx=${{ minHeight: '100vh', bgcolor: 'background.default' }}>
+          <${AppBar} position="sticky">
+            <${Toolbar}>
+              <${Typography} variant="h6" sx=${{ flexGrow: 1, color: 'text.primary' }}>
+                Playlist System — Demo (${themeLabel})
+              </${Typography}>
+              <${IconButton} size="small">
+                <${Avatar} sx=${{ width: 32, height: 32, bgcolor: 'primary.main' }}>L</${Avatar}>
+              </${IconButton}>
+            </${Toolbar}>
+          </${AppBar}>
+
+          <${Container} maxWidth="lg" sx=${{ py: 4 }}>
+            <${Stack} spacing=${3}>
+              <${Box}>
+                <${Typography} variant="h3" gutterBottom>Dashboard</${Typography}>
+                <${Typography} variant="body2" color="text.secondary">Last 30 days</${Typography}>
+              </${Box}>
+
+              <${Stack} direction=${{ xs: 'column', md: 'row' }} spacing=${2}>
+                ${kpis.map((kpi) => html`
+                  <${Card} key=${kpi.label} sx=${{ flex: 1 }}>
+                    <${CardContent}>
+                      <${Typography} variant="caption" color="text.secondary">${kpi.label}</${Typography}>
+                      <${Typography} variant="h4" sx=${{ my: 0.5 }}>${kpi.value}</${Typography}>
+                      <${Chip}
+                        label=${kpi.trend}
+                        size="small"
+                        color=${kpi.positive ? 'success' : 'error'}
+                        variant="outlined"
+                      />
+                    </${CardContent}>
+                  </${Card}>
+                `)}
+              </${Stack}>
+
+              <${Card}>
+                <${CardContent}>
+                  <${Typography} variant="h5" gutterBottom>Actions</${Typography}>
+                  <${Divider} sx=${{ mb: 2 }} />
+                  <${Stack} spacing=${2}>
+                    <${Stack} direction="row" spacing=${1} flexWrap="wrap" useFlexGap=${true}>
+                      <${Button} variant="contained" color="primary">Primary</${Button}>
+                      <${Button} variant="outlined">Secondary</${Button}>
+                      <${Button} variant="text">Tertiary</${Button}>
+                      <${Button} variant="contained" color="error">Danger</${Button}>
+                    </${Stack}>
+                    <${Stack} direction="row" spacing=${1} flexWrap="wrap" useFlexGap=${true}>
+                      <${Chip} label="Active" color="primary" />
+                      <${Chip} label="Follow-up" color="warning" variant="outlined" />
+                      <${Chip} label="At risk" color="error" variant="outlined" />
+                      <${Chip} label="AI Escalated" color="primary" variant="outlined" />
+                    </${Stack}>
+                    <${TextField} label="Search customers" fullWidth />
+                  </${Stack}>
+                </${CardContent}>
+              </${Card}>
+            </${Stack}>
+          </${Container}>
+        </${Box}>
+      `;
+    }
+
+    function Shell() {
+      const [which, setWhich] = useState('playlist');
+      const theme = which === 'playlist' ? playlistTheme : smartdeskTheme;
+
+      // key=${which} forces React to unmount and remount everything when the theme
+      // changes. This ensures CssBaseline re-applies the fontFamily to
+      // <body> and that all Typography picks up the new fontFamily from
+      // the theme — without it, some cached styles would stick.
+      return html`
+        <${ThemeProvider} theme=${theme} key=${which}>
+          <${CssBaseline} />
+          <${Box} sx=${{
+            position: 'fixed', top: 12, right: 12, zIndex: 1300,
+            bgcolor: 'background.paper', borderRadius: 999,
+            border: '1px solid', borderColor: 'divider', p: 0.5, display: 'flex',
+          }}>
+            <${Button} size="small" variant=${which === 'playlist' ? 'contained' : 'text'}
+              onClick=${() => setWhich('playlist')} sx=${{ borderRadius: 999, minWidth: 100 }}>
+              playlist
+            </${Button}>
+            <${Button} size="small" variant=${which === 'smartdesk' ? 'contained' : 'text'}
+              onClick=${() => setWhich('smartdesk')} sx=${{ borderRadius: 999, minWidth: 100 }}>
+              smartdesk
+            </${Button}>
+          </${Box}>
+          <${DemoApp} themeLabel=${which} />
+        </${ThemeProvider}>
+      `;
+    }
+
+    // remove the loader only after React mounts
+    document.getElementById('loading')?.remove();
+    createRoot(document.getElementById('root')).render(React.createElement(Shell));
+  </script>
+
+  <script>
+    // If the module fails (importmap not supported, esm.sh offline, etc.),
+    // show a clear message instead of a blank screen.
+    window.addEventListener('error', (e) => {
+      const loader = document.getElementById('loading');
+      if (loader) {
+        loader.innerHTML =
+          '<div style="max-width:560px; text-align:center;">' +
+          '<strong>Error loading preview.</strong><br/>' +
+          'Likely cause: network blockage (esm.sh) or browser without importmap support. ' +
+          'Error: <code style="background:#F5F6F8;padding:2px 6px;border-radius:4px;">' +
+          (e?.message || 'unknown') + '</code>' +
+          '</div>';
+      }
+    });
+  </script>
+</body>
+</html>

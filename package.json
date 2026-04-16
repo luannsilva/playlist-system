@@ -1,0 +1,41 @@
+{
+  "name": "playlist-system",
+  "version": "1.0.0",
+  "description": "Design system skill for UI prototypes — MUI v6 (web) + React Native Paper (mobile), two themes: playlist and smartdesk",
+  "type": "module",
+  "bin": {
+    "playlist-system": "./bin/cli.mjs"
+  },
+  "files": [
+    "bin/",
+    "SKILL.md",
+    "README.md",
+    "tokens/",
+    "adapters/",
+    "templates/",
+    "references/",
+    "checklists/",
+    "scripts/",
+    "preview/",
+    "evals/"
+  ],
+  "keywords": [
+    "claude",
+    "skill",
+    "design-system",
+    "mui",
+    "material-ui",
+    "react-native-paper",
+    "expo",
+    "prototype",
+    "ui"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<seu-user>/playlist-system"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}
