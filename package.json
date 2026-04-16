@@ -1,6 +1,6 @@
 {
   "name": "playlist-system",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Design system skill for UI prototypes — MUI v6 (web) + React Native Paper (mobile), two themes: playlist and smartdesk",
   "type": "module",
   "bin": {
